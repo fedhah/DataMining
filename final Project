@@ -27,3 +27,358 @@ con = {'Health and beauty': 0, 'Electronic accessories': 1, 'Home and lifestyle'
 supermarket_df['Product line'] = supermarket_df['Product line'].map(con)
 con = {'Ewallet': 0, 'Cash': 1, 'Credit card': 2}
 supermarket_df['Payment'] = supermarket_df['Payment'].map(con)
+supermarket_df
+
+supermarket_df['Time']= pd.to_datetime(supermarket_df['Time'],format="%H:%M").dt.hour
+supermarket_df
+
+# Statistical analysis
+supermarket_df.isnull().sum()
+
+print(supermarket_df.describe())
+
+print('Display the Total for several columns:')
+print('')
+# the total sales in each branch
+b = supermarket_df.groupby(by=['Branch']).sum()[['Total']].sort_values(by='Total')
+print('The total for branch:')
+print(b)
+#the total sales for each gender
+g = supermarket_df.groupby(['Gender']).sum()[['Total']].sort_values(by='Total')
+print('')
+print('The total for gender:')
+print(g)
+# sum total for each product line from low to high
+p = supermarket_df.groupby(by=['Product line']).sum()[['Total']].sort_values(by='Total')
+print('')
+print('The total for product line:')
+print(p)
+#the total in each hour 
+h = supermarket_df.groupby(by=['Time']).sum()[['Total']].sort_values(by='Total')
+print('')
+print('The total in each hour:')
+print(h)
+
+print((supermarket_df[['Tax 5%','Quantity']]).max())
+
+print('Shows  the total sales and its average')
+print('')
+total_sales = supermarket_df['Total'].sum()
+avg_sales= round(supermarket_df['Total'].mean(),1)
+print('Total Sales:',total_sales,'USD')
+print('Average sales:',avg_sales)
+
+print('Shows the average of customer satisfaction rate: ')
+Avg_rate= round(supermarket_df['Rating'].mean(),1)
+print('Average Rating:',Avg_rate)
+
+#  Data Visualisation 
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+sns.set(color_codes=True)
+
+#represent which gender are more buy in each product line. 
+plt.figure(figsize = (12,6))
+sns.histplot(x='Product line', hue='Gender', data=supermarket_df , kde=True )
+
+plt.figure(figsize = (12,6))
+sns.barplot(y='Rating', x='Customer type', data=supermarket_df  )
+
+# represent the total in each branch
+plt.figure(figsize = (12,6))
+sns.boxplot(x='Gender',y='Total',hue='Customer type',data=supermarket_df)
+plt.show()
+
+# shows when customer more buy in each hour
+plt.figure(figsize = (15,6))
+sns.histplot(x='Total', hue='Time', data=supermarket_df )
+
+#represents the highest rate that gets to the product line by each gender
+plt.figure(figsize = (12,6))
+
+sns.set(style='darkgrid')
+sns.barplot(data=supermarket_df,  y='Rating',x='Product line',hue='Gender')
+
+plt.show()
+
+# shows the gross income for each branch
+sns.set_style('whitegrid')
+plt.figure(figsize = (12,6))
+sns.scatterplot(x ='Unit price' , y = 'gross income',hue='Branch' , data = supermarket_df )
+plt.show()
+
+# shows the most way for pay that used in each branch
+sns.FacetGrid(supermarket_df,hue='Branch' , height=10).map(plt.scatter,'Customer type','Total')\
+.add_legend();
+plt.show();
+
+plt.figure(figsize = (15,8))
+plt.scatter(supermarket_df['Product line'], supermarket_df['Total'], c=supermarket_df['Time'],s=supermarket_df['gross income'])
+
+plt.xlabel('Product line')
+plt.ylabel('Total')
+  
+plt.show()
+
+
+# KMeans Algorithm
+from sklearn.cluster import KMeans
+x = supermarket_df.iloc[:, [1,12,13,14,15,16]].values
+supermarket_df
+
+Kmeans5 = KMeans(n_clusters = 5)
+y_kmeans5= Kmeans5.fit_predict(x)
+print(y_kmeans5)
+Kmeans5.cluster_centers_
+
+supermarket_df['cluster']= y_kmeans5
+supermarket_df.head()
+
+Error = []
+for i in range(1,11):
+    kmeans = KMeans(n_clusters = i).fit(x)
+    kmeans.fit(x)
+    Error.append(kmeans.inertia_)
+    
+plt.plot(range(1,11),Error)
+plt.title('k')
+plt.xlabel('No of clusters')
+plt.ylabel('Error')
+plt.show()
+
+plt.scatter(x[:,2],x[:,4],c=y_kmeans5)
+plt.show()
+
+Kmeans20 = KMeans(n_clusters = 20)
+y_kmeans20= Kmeans20.fit_predict(x)
+print(y_kmeans20)
+Kmeans5.cluster_centers_
+
+plt.scatter(x[:,1],x[:,2],c=y_kmeans20)
+plt.show()
+
+# Naive Bayes
+from sklearn.naive_bayes import GaussianNB, BernoulliNB
+from sklearn.preprocessing import LabelEncoder
+
+dataframe= [('Mandalay','Female','Home and lifestyle','Normal'),
+            ('Naypyitaw', ' Female ','Electronic accessories','Normal'),        
+            ('Mandalay','Male','Sports and travel','Member'),         
+            ('Mandalay','Male','Sports and travel','Normal'),   
+            ('Naypyitaw', ' Female ','Home and lifestyle','Normal'),
+            ('Yangon','Female','Electronic and accessories' ,'Member'),
+            ('Mandalay','Female','Food and beverages','Normal'),
+           ('Mandalay','Female','Sports and travel','Member'),
+           ('Yangon','Female','Health and beauty' ,'Member'),  
+            ('Naypyitaw', 'Male ','Electronic accessories','Normal'),
+           ('Yangon','Male','Home and lifestyle' ,'Normal'),
+            ('Yangon','Male','Health and beauty' ,'Member'),
+            ('Yangon','Male','Sports and travel' ,'Normal'),
+          ('Naypyitaw', 'Male','Electronic accessories','Member')]
+
+superMarketdf=pd.DataFrame(dataframe, columns=['city','Gender', 'Product line','Customer type'])
+superMarketdf
+
+data={'City':['Mandalay','Naypyitaw','Yangon','Naypyitaw','Mandalay'],
+      'ProductLine':['Home and lifestyle','Electronic accessories','Electronic and accessories','Home and lifestyle','Sports and travel'],
+      'Customer':['Normal','Normal','Member','Normal','Member']}
+
+data=pd.DataFrame(data)
+data
+
+le = LabelEncoder()
+Gender_encoded=le.fit_transform(superMarketdf['Gender'])
+Custypy_encoded=le.fit_transform(superMarketdf['Customer type'])
+City_encoded=le.fit_transform(data['City'])
+print("City encoded:",City_encoded)
+print("Gender encoded:",Gender_encoded)
+print("Customer type encoded:",Custypy_encoded)
+
+city_encoded=le.fit_transform(superMarketdf['city'])
+print("city encoded:",city_encoded)
+
+features=zip(city_encoded,Gender_encoded)
+features_Is=list(features)
+print(features_Is)
+
+City_encoded=le.fit_transform(data['City'])
+product_encoded=le.fit_transform(data['ProductLine'])
+cust_encoded=le.fit_transform(data['Customer'])
+
+print("city encoded:",city_encoded)
+print("product line encoded:",product_encoded)
+print("customer type encoded:",cust_encoded)
+
+featuress=zip(City_encoded,product_encoded)
+features_Iss=list(featuress)
+print(features_Iss)
+
+from sklearn.naive_bayes import GaussianNB, BernoulliNB 
+model=BernoulliNB()
+model.fit(features_Is, Custypy_encoded)
+predicted=model.predict([[0,2]])
+print("predicted value:",predicted)
+
+model=GaussianNB()
+model.fit(features_Is, Custypy_encoded)
+predicted=model.predict([[0,3]])
+print("predicted value:",predicted)
+
+# Apriori Algorithm
+supermarket_df.Gender.unique()
+supermarket_dff =  pd.read_csv("./supermarket-sales/supermarket_sales - Sheet1.csv")
+df = supermarket_dff.iloc[:, [1,2,3,4,12]].values
+df
+from mlxtend.preprocessing import TransactionEncoder
+TranEncod=TransactionEncoder()
+te_ary=TranEncod.fit(df).transform(df)
+dff=pd.DataFrame(te_ary, columns=TranEncod.columns_)
+dff
+
+from mlxtend.frequent_patterns import apriori
+apriori(dff, min_support=0.22,use_colnames=True)
+frequent_itemsets=apriori(dff, min_support=0.33, use_colnames=True)
+frequent_itemsets['length']=frequent_itemsets['itemsets'].apply(lambda x: len(x))
+frequent_itemsets
+
+frequent_itemsets [ (frequent_itemsets['length'] == 2) &(frequent_itemsets['support'] >= 0.33) ]
+
+# Decision Tree Algorithm
+pip install pydotplus
+import pydotplus as pydotplus
+from sklearn.tree import DecisionTreeClassifier
+%matplotlib inline
+from sklearn import tree
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score 
+from sklearn import metrics
+seed =10
+
+supermarket_df_n= supermarket_df.drop(['Invoice ID','Date'],axis=1)
+supermarket_df_n
+features = ['Product line','Total','Rating','gross margin percentage' ,'Branch']
+
+X = supermarket_df_n[features]
+y = supermarket_df_n['Customer type']
+print(X)
+print(y)
+
+m=supermarket_df_n[ 'Customer type']
+m.shape
+supermarket_df_n['Customer type']
+df_test=supermarket_df_n.sample(n=10)
+x_test=df_test.drop(['Customer type'],axis=1)
+y_test=df_test['Customer type']
+le = LabelEncoder()
+le.fit(supermarket_df_n['Customer type'].values)
+y = le.transform(supermarket_df_n['Customer type'].values)
+X = supermarket_df_n.drop('Customer type', axis=1).values
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+                                                    stratify=y, random_state=seed)
+                                                    
+tree=DecisionTreeClassifier(criterion='entropy',min_samples_leaf=2,min_samples_split=2,max_depth=None,random_state=seed)
+tree.fit(X_train,y_train)
+y_pred=tree.predict(X_test)
+accuracy=accuracy_score(y_test, y_pred)
+print('DecisionTreeClassifier accuracy score {}'.format(accuracy))
+
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+
+print('Confusion Matrix is')
+print(confusion_matrix(y_test, y_pred))
+cm=confusion_matrix(y_test, y_pred)
+plt.matshow(cm)
+plt.show()
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test,y_pred, labels=supermarket_df_n['Customer type'].unique()))
+
+accuracy= metrics.accuracy_score(y_test,y_pred)
+print("Accuracy of this model = {:.3f}".format(accuracy))
+
+# LinearRegression
+X=supermarket_df['Total']
+Y=supermarket_df['Quantity']
+Slic_df=pd.DataFrame({'Total':X,'Quantity':Y})
+print(Slic_df)
+
+plt.scatter(Slic_df[['Total']], Slic_df[['Quantity']],color = "r", marker = "x", s = 15)
+plt.xlabel('Total')
+plt.ylabel('Quantity')
+plt.title('Scatter Plot')
+plt.show()
+
+from sklearn.linear_model import LinearRegression
+classifier = LinearRegression()
+model = classifier.fit(Slic_df[['Total']],Slic_df[['Quantity']])
+
+y_pred = classifier.predict(Slic_df[['Total']])
+print(y_pred)
+print('Coefficient: \n', classifier.coef_)
+print('Intercept: \n', classifier.intercept_)
+
+plt.scatter(Slic_df[['Total']],Slic_df[['Quantity']], color= 'm',
+           marker='s',s=10)
+plt.plot(Slic_df['Total'],y_pred, color='g')
+plt.xlabel('Total')
+plt.ylabel('Quantity')
+plt.title('Regression Function')
+plt.show()
+print('Coefficient: \n', classifier.coef_)
+print('Intercept: \n', classifier.intercept_)
+
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+print('Mean squared error:')
+print(mean_squared_error(Slic_df['Total'],y_pred))
+
+plt.scatter(y_pred, (Slic_df[['Total']] - y_pred)**2,color='blue',s=10)
+plt.title('Squared errors')
+plt.hlines(y=0,xmin=0 , xmax=140, linewidth=2)
+plt.xlabel('predicted values')
+plt.ylabel('squared error')
+plt.show()
+
+print('Mean absolute error: ')
+print(mean_absolute_error(Slic_df['Total'],y_pred))
+
+plt.scatter(y_pred, (Slic_df[['Total']] - y_pred),color='red',s=10)
+plt.title('Absolute errors')
+plt.hlines(y=0,xmin=0 , xmax=140, linewidth=2)
+plt.xlabel('predicted values')
+plt.ylabel('absolute error')
+plt.show()
+
+# LogisticRegression
+from sklearn.linear_model import LogisticRegression
+print(supermarket_df.columns.tolist())
+z= supermarket_df[['Total']]
+v= supermarket_df['City']
+print('z:',z.head(),'\n')
+print('v:',v.head(),'\n')
+
+classifier3= LogisticRegression(solver = 'liblinear',multi_class='ovr')
+classifier3.fit(z,v)
+pred= classifier3.predict(z)
+
+print('score:',classifier3.score(z,v))
+print('Coefficient: ',classifier3.coef_)
+print('inercept:',classifier3.intercept_)
+
+print(supermarket_df.columns.tolist(),'\n')
+z= supermarket_df.iloc[:,0:11]
+v= supermarket_df['City']
+print('z:',z.head(),'\n')
+print('v:',v.head(),'\n')
+from sklearn.linear_model import LogisticRegression
+classifier4 = LogisticRegression()
+classifier4= LogisticRegression(solver = 'liblinear',multi_class='ovr')
+classifier4.fit(z,v)
+pred= classifier4.predict(z)
+
+print('score:',classifier4.score(z,v))
+print('Coefficient: ',classifier4.coef_)
+print('inercept:',classifier4.intercept_)
