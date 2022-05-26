@@ -382,3 +382,40 @@ pred= classifier4.predict(z)
 print('score:',classifier4.score(z,v))
 print('Coefficient: ',classifier4.coef_)
 print('inercept:',classifier4.intercept_)
+
+# PCA
+from sklearn.preprocessing import StandardScaler , MinMaxScaler
+feature = ['Branch','Customer type','Total','Payment']
+a = supermarket_df.loc[:,feature].values
+s = supermarket_df.loc[:,'Product line'].values
+a = StandardScaler().fit_transform(a)
+print(a)
+
+from sklearn.decomposition import PCA
+pca = PCA(n_components =2)
+principalComponents = pca.fit_transform(a)
+pricipalDF= pd.DataFrame(data = principlaComponents, columns=['PC1','PC2'])
+pricipalDF
+
+finalDF =pd.concat([pricipalDF, supermarket_df[['Product line']]],axis=1)
+finalDF
+
+fig = plt.figure(figsize = (8,8))
+ax = fig.add_subplot(1,1,1)
+ax.set_xlabel('PC1',fontsize =15)
+ax.set_ylabel('PC2',fontsize =15)
+ax.set_title('2 compnent PCA',fontsize =20)
+
+targets = [0,1,2,3,4,5]
+colors = ['r','g','b','c','m','y']
+
+for target, color in zip(targets,colors):
+    indicesToKeep = finalDF['Product line'] == target
+    ax.scatter(finalDF.loc[indicesToKeep, 'PC1']
+              , finalDF.loc[indicesToKeep, 'PC2']
+              , c =color
+              , s=50)
+    
+ax.legend(targets)
+ax.grid()
+
