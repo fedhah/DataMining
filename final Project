@@ -1,0 +1,29 @@
+import matplotlib.pyplot as plt 
+import numpy as np 
+import os 
+import pandas as pd 
+
+
+!pip install opendatasets
+import opendatasets as od
+dataset = 'https://www.kaggle.com/datasets/aungpyaeap/supermarket-sales'
+od.download(dataset)
+data_dir = './supermarket-sales'
+os.listdir(data_dir)
+supermarket = pd.read_csv("./supermarket-sales/supermarket_sales - Sheet1.csv")
+supermarket
+
+supermarket_df = pd.read_csv("./supermarket-sales/supermarket_sales - Sheet1.csv")
+supermarket_df
+con = {'A': 0, 'B': 1, 'C': 2}
+supermarket_df['Branch'] = supermarket_df['Branch'].map(con)
+con = {'Yangon': 1, 'Naypyitaw': 0, 'Mandalay':2}
+supermarket_df['City'] = supermarket_df['City'].map(con)
+con = {'Member': 1, 'Normal': 0}
+supermarket_df['Customer type'] = supermarket_df['Customer type'].map(con)
+con = {'Female': 0, 'Male': 1}
+supermarket_df['Gender'] = supermarket_df['Gender'].map(con)
+con = {'Health and beauty': 0, 'Electronic accessories': 1, 'Home and lifestyle': 2, 'Sports and travel':3, 'Food and beverages':4,'Fashion accessories':5}
+supermarket_df['Product line'] = supermarket_df['Product line'].map(con)
+con = {'Ewallet': 0, 'Cash': 1, 'Credit card': 2}
+supermarket_df['Payment'] = supermarket_df['Payment'].map(con)
