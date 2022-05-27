@@ -85,41 +85,6 @@ sns.histplot(x='Product line', hue='Gender', data=supermarket_df , kde=True )
 plt.figure(figsize = (12,6))
 sns.barplot(y='Rating', x='Customer type', data=supermarket_df  )
 
-# represent the total in each branch
-plt.figure(figsize = (12,6))
-sns.boxplot(x='Gender',y='Total',hue='Customer type',data=supermarket_df)
-plt.show()
-
-# shows when customer more buy in each hour
-plt.figure(figsize = (15,6))
-sns.histplot(x='Total', hue='Time', data=supermarket_df )
-
-#represents the highest rate that gets to the product line by each gender
-plt.figure(figsize = (12,6))
-
-sns.set(style='darkgrid')
-sns.barplot(data=supermarket_df,  y='Rating',x='Product line',hue='Gender')
-
-plt.show()
-
-# shows the gross income for each branch
-sns.set_style('whitegrid')
-plt.figure(figsize = (12,6))
-sns.scatterplot(x ='Unit price' , y = 'gross income',hue='Branch' , data = supermarket_df )
-plt.show()
-
-# shows the most way for pay that used in each branch
-sns.FacetGrid(supermarket_df,hue='Branch' , height=10).map(plt.scatter,'Customer type','Total')\
-.add_legend();
-plt.show();
-
-plt.figure(figsize = (15,8))
-plt.scatter(supermarket_df['Product line'], supermarket_df['Total'], c=supermarket_df['Time'],s=supermarket_df['gross income'])
-
-plt.xlabel('Product line')
-plt.ylabel('Total')
-  
-plt.show()
 
 
 # KMeans Algorithm
